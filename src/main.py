@@ -7,8 +7,10 @@ def send_telegram_message(text: str):
 
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
-    requests.post(url, data={
+    r = requests.post(url, data={
         "chat_id": chat_id,
         "text": text,
         "parse_mode": "Markdown"
     })
+
+    print("TELEGRAM RESPONSE:", r.text)
