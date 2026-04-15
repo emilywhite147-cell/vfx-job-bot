@@ -39,4 +39,4 @@ STUDIOS = [
         "base_url": "https://electrictheatre.tv",
         "jobs_path": "/careers"
     }
-    
+]
