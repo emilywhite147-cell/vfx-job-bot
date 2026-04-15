@@ -40,5 +40,3 @@ STUDIOS = [
         "jobs_path": "/careers"
     }
     
-
-    return results
