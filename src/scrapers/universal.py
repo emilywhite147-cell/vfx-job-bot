@@ -40,6 +40,5 @@ STUDIOS = [
         "jobs_path": "/careers"
     }
     
-]nue
 
     return results
