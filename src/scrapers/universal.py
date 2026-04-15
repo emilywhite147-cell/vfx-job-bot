@@ -21,9 +21,25 @@ STUDIOS = [
     },
     {
         "name": "One Of Us",
-        "base_url": "https://careers.weacceptyou.com",
-        "jobs_path": "/jobs"
+        "base_url": "https://www.weacceptyou.com/",
+        "jobs_path": "/careers"
+    },
+    {
+        "name": "Blue Bolt",
+        "base_url": "https://www.blue-bolt.com/hiring",
+        "jobs_path": "/hiring"
+    },
+    {
+        "name": "Untold",
+        "base_url": "https://untoldstudios.tv/",
+        "jobs_path": "/careers"
+    },
+    {
+        "name": "Electric Theatre Collective",
+        "base_url": "https://electrictheatre.tv",
+        "jobs_path": "/careers"
     }
+    
 ]nue
 
     return results
