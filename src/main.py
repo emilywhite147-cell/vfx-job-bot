@@ -15,16 +15,22 @@ from core.telegram import send_telegram_message
 def run():
     jobs = []
 
-    jobs += fetch_dneg_jobs()
-    jobs += fetch_framestore_jobs()
-    jobs += fetch_cinesite_jobs()
-    jobs += fetch_milk_jobs()
-    jobs += fetch_oneofus_jobs()
-    jobs += fetch_bluebolt_jobs()
-    jobs += fetch_untold_jobs()
-    jobs += fetch_electric_jobs()
-    jobs += fetch_outpost_jobs()
-    jobs += fetch_jfx_jobs()
+    for fn in [
+        fetch_dneg_jobs,
+        fetch_framestore_jobs,
+        fetch_cinesite_jobs,
+        fetch_milk_jobs,
+        fetch_oneofus_jobs,
+        fetch_bluebolt_jobs,
+        fetch_untold_jobs,
+        fetch_electric_jobs,
+        fetch_outpost_jobs,
+        fetch_jfx_jobs,
+    ]:
+        try:
+            jobs.extend(fn())
+        except Exception as e:
+            print(f"Scraper failed: {fn.__name__}: {e}")
 
     if not jobs:
         send_telegram_message("No VFX Producer / PM / Line Producer jobs in London today.")
