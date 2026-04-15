@@ -1,4 +1,5 @@
 from .base import get_soup
+from .filter import is_relevant_job
 
 BASE_URL = "https://www.framestore.com"
 
@@ -11,18 +12,12 @@ def fetch_framestore_jobs():
         title = a.get_text(strip=True)
         href = a["href"]
 
-        if not title or len(title) < 5:
+        if not title:
             continue
 
-        bad_keywords = [
-            "about", "news", "cookie", "privacy",
-            "contact", "read more", "apply now"
-        ]
+        full_text = title
 
-        if any(b in title.lower() for b in bad_keywords):
-            continue
-
-        if "job" in href or "career" in href:
+        if is_relevant_job(title, full_text):
             jobs.append({
                 "title": title,
                 "url": href if href.startswith("http") else BASE_URL + href
