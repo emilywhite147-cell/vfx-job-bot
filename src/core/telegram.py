@@ -1,25 +1,19 @@
-from scrapers.dneg import fetch_dneg_jobs
-from scrapers.framestore import fetch_framestore_jobs
-from core.telegram import send_telegram_message
+import os
+import requests
 
-def run():
-    jobs = []
-    jobs += fetch_dneg_jobs()
-    jobs += fetch_framestore_jobs()
+def send_telegram_message(text: str):
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
-    if not jobs:
-        send_telegram_message("No VFX jobs found today.")
+    if not token or not chat_id:
+        print("Missing Telegram env vars")
         return
 
-    message = "🎬 *VFX JOB ALERT*\n\n"
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
 
-    for job in jobs[:10]:
-        title = job.get("title", "No title")
-        url = job.get("url", "")
+    r = requests.post(url, data={
+        "chat_id": chat_id,
+        "text": text
+    })
 
-        message += f"• {title}\n{url}\n\n"
-
-    send_telegram_message(message)
-
-if __name__ == "__main__":
-    run()
+    print("TELEGRAM RESPONSE:", r.text)
