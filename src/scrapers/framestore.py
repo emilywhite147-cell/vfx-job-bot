@@ -1,33 +1,61 @@
 import requests
 from bs4 import BeautifulSoup
 
-BASE_URL = "https://www.framestore.com"
+BASE = "https://www.framestore.com"
+
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 def fetch_framestore_jobs():
-    url = BASE_URL + "/careers"
-    res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    soup = BeautifulSoup(res.text, "html.parser")
+    try:
+        res = requests.get(BASE + "/careers", headers=HEADERS, timeout=20)
+        soup = BeautifulSoup(res.text, "html.parser")
+    except:
+        return []
 
-    jobs = []
+    # STEP 1: collect candidate links
+    links = set()
 
-    for a in soup.find_all("a"):
-        title = a.get_text(strip=True)
-        href = a.get("href")
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
 
-        if not title or not href:
+        if any(x in href.lower() for x in ["job", "career", "position"]):
+            full = href if href.startswith("http") else BASE + href
+            links.add(full)
+
+    results = []
+
+    # STEP 2: deep scan each job page
+    for url in links:
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=20)
+            text = r.text.lower()
+
+            # ROLE MATCH (flexible wording)
+            role_match = any(rk in text for rk in [
+                "vfx producer",
+                "production manager",
+                "line producer",
+                "vfx production"
+            ])
+
+            # LOCATION MATCH (loose, realistic)
+            location_match = any(loc in text for loc in [
+                "london",
+                "uk",
+                "united kingdom",
+                "london, uk"
+            ])
+
+            if role_match and location_match:
+                page = BeautifulSoup(r.text, "html.parser")
+                title = page.title.text.strip() if page.title else "Framestore Job"
+
+                results.append({
+                    "title": title,
+                    "url": url
+                })
+
+        except:
             continue
 
-        text = title.lower()
-
-        if any(x in text for x in [
-            "vfx producer",
-            "production manager",
-            "line producer"
-        ]) and any(loc in text for loc in ["london", "uk"]):
-
-            jobs.append({
-                "title": title,
-                "url": href if href.startswith("http") else BASE_URL + href
-            })
-
-    return jobs
+    return results
