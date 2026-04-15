@@ -1,23 +1,30 @@
-from .base import get_soup
-from .filter import is_relevant_job
+import requests
+from bs4 import BeautifulSoup
 
 BASE_URL = "https://www.dneg.com"
 
 def fetch_dneg_jobs():
-    soup = get_soup(f"{BASE_URL}/careers/")
+    url = BASE_URL + "/careers/"
+    res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    soup = BeautifulSoup(res.text, "html.parser")
 
     jobs = []
 
-    for a in soup.select("a[href]"):
+    for a in soup.find_all("a"):
         title = a.get_text(strip=True)
-        href = a["href"]
+        href = a.get("href")
 
-        if not title:
+        if not title or not href:
             continue
 
-        full_text = title
+        text = title.lower()
 
-        if is_relevant_job(title, full_text):
+        if any(x in text for x in [
+            "vfx producer",
+            "production manager",
+            "line producer"
+        ]) and any(loc in text for loc in ["london", "uk"]):
+
             jobs.append({
                 "title": title,
                 "url": href if href.startswith("http") else BASE_URL + href
