@@ -1,4 +1,5 @@
 from .base import get_soup
+from .filter import is_relevant_job
 
 BASE_URL = "https://www.dneg.com"
 
@@ -7,32 +8,19 @@ def fetch_dneg_jobs():
 
     jobs = []
 
-    # DNEG usually uses meaningful links under /careers or /jobs
     for a in soup.select("a[href]"):
         title = a.get_text(strip=True)
         href = a["href"]
 
-        # 🔥 FILTER 1: must look like a job
         if not title:
             continue
 
-        if len(title) < 5:
-            continue
+        full_text = title
 
-        # 🔥 FILTER 2: ignore navigation junk
-        bad_keywords = [
-            "about", "news", "contact", "privacy",
-            "cookie", "login", "register", "view all"
-        ]
-
-        if any(b in title.lower() for b in bad_keywords):
-            continue
-
-        # 🔥 FILTER 3: keep likely job links
-        if "career" in href or "job" in href or "position" in href:
+        if is_relevant_job(title, full_text):
             jobs.append({
                 "title": title,
-                "url": BASE_URL + href if href.startswith("/") else href
+                "url": href if href.startswith("http") else BASE_URL + href
             })
 
     return jobs
